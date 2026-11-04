@@ -1,6 +1,8 @@
 import { InstanceBase, Regex, InstanceStatus } from '@companion-module/base'
 import { UpgradeScripts } from './upgrades.js'
 import { UpdateActions } from './actions.js'
+import { UpdateFeedbacks } from './feedbacks.js'
+import { UpdateVariableDefinitions, InitVariables, DestroyVariables } from './variables.js' 
 
 export { UpgradeScripts }
 
@@ -11,13 +13,23 @@ export default class ModuleInstance extends InstanceBase {
 
 	async init(config) {
 		this.config = config
+		InitVariables(this)
 
 		this.updateStatus(InstanceStatus.Ok)
+		
 		this.updateActions() // export actions
+		this.updateFeedbacks() // export feedbacks
+		this.updateVariableDefinitions() // export variable definition		
 	}
 	
 	async configUpdated(config) {
 		this.config = config
+
+		DestroyVariables(this) 
+		InitVariables(this)
+	}
+	async destroy() {
+		DestroyVariables(this)
 	}
 
 	// Return config fields for web config
@@ -41,11 +53,27 @@ export default class ModuleInstance extends InstanceBase {
 				id: 'pwd',
 				label: 'Password',
 				width: 8,
-			}
+			},
+			{
+				type: 'number',
+				id: 'pollInterval',
+				label: 'Poll Interval in MS',
+				width: 8,
+				min: 500,
+				default: 1000
+			},
 		]
 	}
 
 	updateActions() {
 		UpdateActions(this)
+	}
+
+	updateFeedbacks() {
+		UpdateFeedbacks(this)
+	}
+
+	updateVariableDefinitions() {
+		UpdateVariableDefinitions(this)
 	}
 }
