@@ -33,7 +33,7 @@ export default class ModuleInstance extends InstanceBase {
 	}
 
 	// Return config fields for web config
-	getConfigFields() {
+	getConfigFields() { 
 		return [
 			{
 				type: 'textinput',
@@ -55,12 +55,19 @@ export default class ModuleInstance extends InstanceBase {
 				width: 8,
 			},
 			{
+				type: 'checkbox',
+				id: 'pollingenabled',
+				label: 'Enable Feedback',
+				default: false
+			},
+			{
 				type: 'number',
 				id: 'pollInterval',
 				label: 'Poll Interval in MS',
 				width: 8,
 				min: 500,
-				default: 1000
+				default: 1000,				
+				isVisibleExpression: '$(options:pollingenabled)',
 			},
 		]
 	}

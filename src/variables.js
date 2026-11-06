@@ -1,3 +1,4 @@
+import { InstanceStatus } from "@companion-module/base";
 import * as http from "http";
 
 export function UpdateVariableDefinitions(self) {
@@ -15,27 +16,30 @@ export function UpdateVariableDefinitions(self) {
 
 let timerID = null
 export function InitVariables(self) {
+	
+	if(self.config.host == undefined || !self.config.pollingenabled) return;
 	const timeoutObj = setInterval(tick, self.config.pollInterval, self)
 	timerID = timeoutObj[Symbol.toPrimitive]()
 }
 export function DestroyVariables(self) {	
+	if(timerID == null) return;
 	clearInterval(timerID);
 	timerID = null;
 }
 
 function tick(self) {
 
-	http.get({
+	var req = http.get({
 		hostname: self.config.host,
 		path: "/api/device/relay"
 	}, response => {
-		
 		if(response.statusCode == 200) {
 			
 			let data = '';
 
 			response.on('data', d => data += d.toString() )
-			response.on('end', () => {							
+			
+			response.on('end', () => {
 				let lines = data.split('\n')
 				
 				self.setVariableValues({
@@ -52,4 +56,5 @@ function tick(self) {
 			});
 		}
 	});	
+	req.on('error', () => self.updateStatus(InstanceStatus.ConnectionFailure))
 }

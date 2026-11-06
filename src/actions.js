@@ -42,9 +42,10 @@ export function UpdateActions(self) {
 					hostname: self.config.host,
 					path: event.options.index == "All" ?  "/api/device/relay" : "/api/outlet/relay",
 					method: "POST",
-					headers: { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": Buffer.byteLength(body), },
+					headers: { "Content-Type": "application/x-www-form-urlencoded", "Content-Length": Buffer.byteLength(body), }
 				});
-
+				req.on('error', () => self.updateStatus(InstanceStatus.ConnectionFailure))
+				
 				req.write(body);
 				req.end();
 			},
